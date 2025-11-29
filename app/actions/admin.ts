@@ -1,0 +1,124 @@
+'use server';
+
+import { db } from '@/lib/db';
+import { auth } from '@clerk/nextjs/server';
+import { revalidatePath } from 'next/cache';
+
+async function checkAdmin() {
+    const { userId } = await auth();
+    if (!userId) return false;
+
+    const user = await db.user.findUnique({
+        where: { id: userId },
+    });
+
+    return user?.isAdmin ?? false;
+}
+
+export async function createTournament(name: string, year: number) {
+    if (!await checkAdmin()) throw new Error("Unauthorized");
+
+    await db.tournament.create({
+        data: { name, year }
+    });
+    revalidatePath('/admin');
+}
+
+export async function createMatch(tournamentId: string, teamA: string, teamB: string, date: Date) {
+    if (!await checkAdmin()) throw new Error("Unauthorized");
+
+    await db.match.create({
+        data: {
+            tournamentId,
+            teamA,
+            teamB,
+            date
+        }
+    });
+    revalidatePath('/admin');
+    revalidatePath('/matches');
+}
+
+export async function setMatchResult(matchId: string, scoreA: number, scoreB: number) {
+    if (!await checkAdmin()) throw new Error("Unauthorized");
+
+    await db.match.update({
+        where: { id: matchId },
+        data: {
+            actualScoreA: scoreA,
+            actualScoreB: scoreB,
+            isPlayed: true
+        }
+    });
+
+    // Calculate points for all predictions for this match
+    const predictions = await db.prediction.findMany({
+        where: { matchId }
+    });
+
+    for (const prediction of predictions) {
+        let points = 0;
+        const predA = prediction.predictedScoreA;
+        const predB = prediction.predictedScoreB;
+
+        if (predA === scoreA && predB === scoreB) {
+            points = 3; // Exact result
+        } else {
+            const actualWinner = scoreA > scoreB ? 'A' : scoreA < scoreB ? 'B' : 'Draw';
+            const predictedWinner = predA > predB ? 'A' : predA < predB ? 'B' : 'Draw';
+            if (actualWinner === predictedWinner) {
+                points = 1; // Correct winner/draw
+            }
+        }
+
+        // Update prediction points
+        await db.prediction.update({
+            where: { id: prediction.id },
+            data: { points }
+        });
+    }
+    
+    // Recalculate total points for all affected users
+    const userIds = Array.from(new Set(predictions.map((p: { userId: string }) => p.userId)));
+    for (const userId of userIds) {
+        const total = await db.prediction.aggregate({
+            where: { userId },
+            _sum: { points: true }
+        });
+        await db.user.update({
+            where: { id: userId },
+            data: { totalPoints: total._sum.points || 0 }
+        });
+    }
+
+    revalidatePath('/matches');
+    revalidatePath('/ranking');
+}
+
+export async function getUsers() {
+    if (!await checkAdmin()) throw new Error("Unauthorized");
+    return await db.user.findMany({
+        orderBy: { createdAt: 'desc' }
+    });
+}
+
+export async function toggleAdmin(userId: string) {
+    if (!await checkAdmin()) throw new Error("Unauthorized");
+    
+    const user = await db.user.findUnique({ where: { id: userId } });
+    if (!user) return;
+
+    await db.user.update({
+        where: { id: userId },
+        data: { isAdmin: !user.isAdmin }
+    });
+    revalidatePath('/admin');
+}
+
+export async function getTournaments() {
+    // Public read is fine, but for admin actions we might want this here
+    return await db.tournament.findMany({
+        include: { matches: true },
+        orderBy: { createdAt: 'desc' }
+    });
+}

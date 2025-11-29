@@ -1,0 +1,33 @@
+@import "tailwindcss";
+@config "../tailwind.config.ts";
+
+:root {
+  --foreground-rgb: 17, 24, 39;
+  /* #111827 */
+  --background-start-rgb: 248, 249, 250;
+  /* #F8F9FA */
+  --background-end-rgb: 255, 255, 255;
+}
+
+body {
+  color: rgb(var(--foreground-rgb));
+  background: rgb(var(--background-start-rgb));
+  font-family: var(--font-lato), sans-serif;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: var(--font-playfair), serif;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+}

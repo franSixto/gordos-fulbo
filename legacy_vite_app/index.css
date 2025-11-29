@@ -1,0 +1,1475 @@
+/**
+ * @license
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+:root {
+    --primary-color: #258055; /* Blue */
+    --secondary-color: #146f11; /* Green */
+    --accent-color: #17a2b8; /* Teal */
+    --background-color: #f4f7f6;
+    --text-color: #333;
+    --card-background: #ffffff;
+    --input-border-color: #ced4da;
+    --input-focus-border-color: #80bdff;
+    --button-text-color: #fff;
+    --danger-color: #dc3545;
+    --warning-color: #ffc107; /* Yellow for pending status */
+    --info-color: #0dcaf0; /* Lighter blue for info */
+    --success-color: var(--secondary-color); /* Green for success status */
+    --font-family: 'Roboto', sans-serif;
+    --header-background: #ffffff;
+    --footer-background: #e9ecef;
+    --nav-button-hover-bg: #e2e6ea;
+    --league-private-color: var(--accent-color);
+    --league-public-color: var(--secondary-color);
+    --tab-inactive-bg: #e9ecef;
+    --tab-inactive-text: var(--primary-color);
+    --tab-active-bg: var(--primary-color);
+    --tab-active-text: var(--button-text-color);
+    --current-user-row-bg: #e6f7ff; /* Light blue for current user in ranking */
+    --notification-success-bg: #d1e7dd; /* Bootstrap like green */
+    --notification-success-text: #0f5132;
+    --notification-success-border: #badbcc;
+    --notification-error-bg: #f8d7da; /* Bootstrap like red */
+    --notification-error-text: #842029;
+    --notification-error-border: #f5c2c7;
+    --notification-info-bg: #cff4fc; /* Bootstrap like cyan */
+    --notification-info-text: #055160;
+    --notification-info-border: #b6effb;
+    --admin-nav-button-bg: #4a5568; /* Darker grey for admin button */
+    --admin-nav-button-hover-bg: #2d3748; /* Even darker grey */
+    --edit-action-color: #ffc107; /* Yellow */
+    --delete-action-color: #dc3545; /* Red */
+}
+
+body {
+    margin: 0;
+    font-family: var(--font-family);
+    background-color: var(--background-color);
+    color: var(--text-color);
+    display: flex;
+    justify-content: center;
+    align-items: flex-start; 
+    min-height: 100vh;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+#root {
+    width: 100%;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative; /* For notification positioning context */
+}
+
+/* Common styles for screen containers */
+.auth-container,
+.dashboard-container,
+.leagues-container,
+.matches-container,
+.ranking-container,
+.profile-container,
+.prediction-container,
+.points-detail-container,
+.create-league-container,
+.join-league-container,
+.admin-panel-container {
+    width: 100%;
+    max-width: 400px; 
+    margin: 0 auto;
+    padding: 1rem;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.dashboard-container,
+.leagues-container,
+.matches-container,
+.ranking-container,
+.profile-container,
+.prediction-container,
+.points-detail-container,
+.create-league-container,
+.join-league-container,
+.admin-panel-container {
+    max-width: 1200px; 
+}
+
+.auth-container {
+    background-color: var(--card-background);
+    padding: 2rem 2.5rem;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    margin-top: 2rem;
+}
+
+
+/* Auth Screen Styles */
+.auth-container header h1 {
+    color: var(--primary-color);
+    margin-bottom: 0.5rem;
+    font-size: 2rem;
+    font-weight: 700;
+}
+
+.auth-container header p {
+    margin-bottom: 1.5rem;
+    color: #6c757d;
+    font-size: 0.9rem;
+}
+
+.auth-tabs {
+    display: flex;
+    margin-bottom: 1.5rem;
+    border-radius: 6px;
+    overflow: hidden;
+    border: 1px solid var(--primary-color);
+}
+
+.auth-tabs button {
+    flex: 1;
+    padding: 0.75rem;
+    background-color: var(--card-background);
+    color: var(--primary-color);
+    border: none;
+    cursor: pointer;
+    font-size: 1rem;
+    font-weight: 500;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.auth-tabs button.active {
+    background-color: var(--primary-color);
+    color: var(--button-text-color);
+}
+
+.auth-tabs button:not(.active):hover {
+    background-color: #e9ecef;
+}
+
+.form-group {
+    margin-bottom: 1rem;
+    text-align: left;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+    font-size: 0.9rem;
+    color: #495057;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid var(--input-border-color);
+    border-radius: 4px;
+    box-sizing: border-box;
+    font-size: 1rem;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    font-family: var(--font-family);
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+    border-color: var(--input-focus-border-color);
+    outline: none;
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+.form-group input:disabled {
+    background-color: #e9ecef;
+    cursor: not-allowed;
+}
+.form-group textarea {
+    resize: vertical;
+    min-height: 80px;
+}
+
+.submit-button {
+    width: 100%;
+    padding: 0.85rem;
+    background-color: var(--secondary-color);
+    color: var(--button-text-color);
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 1rem;
+    font-weight: 500;
+    transition: background-color 0.3s ease;
+    margin-top: 0.5rem;
+}
+
+.submit-button:hover {
+    background-color: #218838; /* Darker green */
+}
+
+.submit-button:disabled {
+    background-color: #6c757d;
+    cursor: not-allowed;
+}
+
+.error-message {
+    color: var(--danger-color);
+    font-size: 0.875rem;
+    margin-top: 0.25rem;
+    text-align: left;
+}
+.error-message.card { /* For error messages that should look like a card */
+    background-color: var(--card-background);
+    padding: 1rem;
+    border-radius: 6px;
+    border: 1px solid var(--danger-color);
+    color: var(--danger-color);
+}
+
+
+/* Shared Header Styles */
+.dashboard-header, .leagues-header, .matches-header, .ranking-header, .profile-header,
+.prediction-header, .points-detail-header, .create-league-header, .join-league-header, .admin-header {
+    background-color: var(--header-background);
+    color: var(--text-color);
+    padding: 1rem 1.5rem;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.dashboard-header h1, .leagues-header h1, .matches-header h1, .ranking-header h1, .profile-header h1,
+.prediction-header h1, .points-detail-header h1, .create-league-header h1, .join-league-header h1, .admin-header h1 {
+    color: var(--primary-color);
+    font-size: 1.8rem;
+    margin: 0;
+}
+
+.user-info {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.user-info span {
+    font-weight: 500;
+}
+
+.logout-button, .back-button {
+    padding: 0.5rem 1rem;
+    background-color: var(--danger-color);
+    color: var(--button-text-color);
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: background-color 0.3s ease;
+}
+
+.logout-button:hover, .back-button:hover {
+    background-color: #c82333; /* Darker red */
+}
+.back-button {
+    background-color: var(--accent-color);
+}
+.back-button:hover {
+    background-color: #138496; /* Darker teal */
+}
+
+
+.dashboard-nav {
+    display: flex;
+    gap: 0.5rem;
+    padding: 0.5rem;
+    background-color: var(--card-background);
+    border-radius: 6px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    overflow-x: auto; /* For many nav buttons */
+}
+
+.nav-button {
+    padding: 0.6rem 1.2rem;
+    background-color: transparent;
+    color: var(--primary-color);
+    border: 1px solid var(--primary-color);
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    font-weight: 500;
+    transition: background-color 0.3s ease, color 0.3s ease;
+    white-space: nowrap;
+}
+
+.nav-button.active, .nav-button:hover {
+    background-color: var(--primary-color);
+    color: var(--button-text-color);
+}
+.nav-button.admin-nav-button {
+    background-color: var(--admin-nav-button-bg);
+    color: var(--button-text-color);
+    border-color: var(--admin-nav-button-bg);
+}
+.nav-button.admin-nav-button:hover, .nav-button.admin-nav-button.active {
+    background-color: var(--admin-nav-button-hover-bg);
+    border-color: var(--admin-nav-button-hover-bg);
+}
+
+
+.dashboard-section {
+    background-color: var(--card-background);
+    padding: 1.5rem;
+    border-radius: 8px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.07);
+}
+
+.dashboard-section h2 {
+    color: var(--accent-color);
+    margin-top: 0;
+    margin-bottom: 1rem;
+    font-size: 1.5rem;
+    border-bottom: 2px solid var(--accent-color);
+    padding-bottom: 0.5rem;
+}
+
+.card-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1rem;
+}
+
+.card {
+    background-color: #fdfdfd;
+    padding: 1rem;
+    border: 1px solid #e0e0e0;
+    border-radius: 6px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+}
+
+/* Prediction Card Styles (Dashboard) */
+.prediction-card {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    padding: 1.25rem;
+}
+
+.prediction-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px dashed var(--input-border-color);
+}
+
+.team-name-display {
+    font-weight: 500;
+    font-size: 1.05rem;
+    color: var(--text-color);
+    flex: 1;
+    text-align: center;
+}
+.team-name-display:first-child { text-align: left; }
+.team-name-display:last-child { text-align: right; }
+
+
+.vs-separator {
+    font-weight: 700;
+    color: var(--primary-color);
+    margin: 0 0.5rem;
+}
+
+.prediction-card-body {
+    text-align: center;
+    margin: 0.5rem 0;
+}
+
+.your-prediction-label {
+    font-size: 0.85rem;
+    color: #6c757d;
+    margin-bottom: 0.25rem;
+}
+
+.predicted-score-display {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: var(--secondary-color);
+    margin: 0;
+    padding: 0.25rem 0.5rem;
+    background-color: #eaf6ec; /* Light green background for score */
+    border-radius: 4px;
+    display: inline-block;
+}
+
+.prediction-card-footer {
+    font-size: 0.9rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 0.5rem;
+}
+
+.status-label {
+    color: #555;
+    margin: 0;
+}
+.prediction-card-points {
+    margin:0;
+    font-weight: bold;
+}
+.prediction-card-points .positive { color: var(--success-color); }
+.prediction-card-points .negative { color: var(--danger-color); }
+.prediction-card-points .neutral { color: var(--text-color); }
+
+
+.status-pendiente { color: var(--warning-color); font-weight: bold; }
+/* Match status classes */
+.status-resultado-exacto { color: var(--success-color); font-weight: bold; }
+.status-ganador-correcto { color: var(--info-color); font-weight: bold; }
+.status-empate-correcto { color: var(--info-color); font-weight: bold; }
+.status-fallado { color: var(--danger-color); font-weight: bold; }
+.no-prediction-made { color: #6c757d; font-style: italic; }
+
+
+.no-predictions-message, .no-items-message {
+    padding: 1rem;
+    text-align: center;
+    color: #6c757d;
+    font-style: italic;
+    background-color: #f8f9fa;
+    border-radius: 4px;
+}
+
+
+.match-card p {
+    margin: 0.5rem 0;
+    font-size: 0.95rem;
+}
+.match-card strong {
+    color: var(--text-color);
+}
+
+/* General Button with Icon Styling */
+.button-with-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5em; /* Space between icon and text */
+    vertical-align: middle;
+}
+
+.button-with-icon svg { /* Target icon directly */
+    /* font-size: 1.1em; /* Make icon slightly larger than text, adjust as needed */
+    /* Icons from react-icons are already well-sized, might not need this */
+}
+
+
+.predict-button, .details-button, .action-button {
+    padding: 0.5rem 1rem;
+    background-color: var(--secondary-color);
+    color: var(--button-text-color);
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: background-color 0.3s ease;
+    margin-top: 0.5rem;
+}
+
+.predict-button:hover, .details-button:hover, .action-button:hover {
+    background-color: #218838; /* Darker green */
+}
+.predict-button.main-action {
+    padding: 0.75rem 1.2rem;
+    font-size: 1rem;
+    width: 100%;
+    max-width: 300px;
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.action-button.cancel-button {
+    background-color: #6c757d; /* Grey for cancel */
+}
+.action-button.cancel-button:hover {
+    background-color: #5a6268;
+}
+
+
+.action-button.join-league-button {
+    background-color: var(--primary-color);
+}
+.action-button.join-league-button:hover {
+    background-color: #0069d9; /* Darker blue */
+}
+.action-button.add-new-button {
+    background-color: var(--primary-color);
+    font-size: 0.9rem;
+}
+.action-button.add-new-button:hover {
+    background-color: #0056b3;
+}
+
+.action-button-small {
+    padding: 0.3rem 0.6rem;
+    font-size: 0.8rem;
+    margin-right: 0.3rem;
+    background-color: var(--accent-color);
+    color: var(--button-text-color);
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+}
+.action-button-small:hover {
+    opacity: 0.85;
+}
+/* Specific colors for admin edit/delete were moved to .action-button-icon */
+
+.points-card { text-align: center; }
+.points-value { font-size: 2.5rem; font-weight: 700; color: var(--primary-color); margin: 0.5rem 0 1rem 0; }
+
+/* Leagues Screen Styles */
+.leagues-actions {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1rem; 
+    padding: 0.5rem;
+    background-color: var(--card-background);
+    border-radius: 6px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    justify-content: center;
+}
+
+.leagues-list-section {
+    background-color: var(--card-background);
+    padding: 1.5rem;
+    border-radius: 8px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.07);
+}
+
+.leagues-list-section h2 { 
+    color: var(--accent-color);
+    margin-top: 0;
+    margin-bottom: 1rem;
+    font-size: 1.5rem;
+    border-bottom: 2px solid var(--accent-color);
+    padding-bottom: 0.5rem;
+}
+
+.leagues-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1rem;
+}
+
+.league-item { 
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.league-info h3 {
+    margin-top: 0;
+    margin-bottom: 0.75rem;
+    color: var(--primary-color);
+    font-size: 1.25rem;
+}
+
+.league-info p {
+    margin: 0.3rem 0;
+    font-size: 0.9rem;
+    color: #555;
+}
+
+.league-type {
+    font-weight: bold;
+    padding: 0.2rem 0.4rem;
+    border-radius: 3px;
+    color: var(--button-text-color);
+    font-size: 0.8rem;
+}
+.league-type.privada { background-color: var(--league-private-color); }
+.league-type.pública { background-color: var(--league-public-color); }
+
+
+.league-item-actions {
+    margin-top: 1rem;
+    display: flex;
+    gap: 0.5rem;
+    justify-content: flex-end;
+}
+
+/* Matches Screen Styles */
+.matches-tabs {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 1.5rem;
+    background-color: var(--card-background);
+    padding: 0.5rem;
+    border-radius: 6px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
+
+.tab-button {
+    flex-grow: 1;
+    padding: 0.75rem 1rem;
+    font-size: 1rem;
+    font-weight: 500;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    background-color: var(--tab-inactive-bg);
+    color: var(--tab-inactive-text);
+    transition: background-color 0.3s ease, color 0.3s ease;
+    text-align: center;
+}
+
+.tab-button.active {
+    background-color: var(--tab-active-bg);
+    color: var(--tab-active-text);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.tab-button:not(.active):hover {
+    background-color: #d3d9df;
+}
+
+.match-list-section {
+    background-color: var(--card-background);
+    padding: 1.5rem;
+    border-radius: 8px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.07);
+}
+
+.match-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: grid;
+    grid-template-columns: 1fr; 
+    gap: 1.5rem;
+}
+
+.match-item { 
+    padding: 1.5rem;
+}
+
+.match-item-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.75rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px dashed var(--input-border-color);
+}
+
+.match-tournament {
+    font-size: 0.85rem;
+    color: var(--accent-color);
+    font-weight: 500;
+    background-color: #eef9fb;
+    padding: 0.2rem 0.5rem;
+    border-radius: 3px;
+}
+
+.match-date {
+    font-size: 0.85rem;
+    color: #6c757d;
+}
+
+.match-item-teams {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    margin: 1rem 0;
+    text-align: center;
+}
+
+.team-name { /* Used in MatchItem for upcoming matches */
+    font-size: 1.1rem;
+    font-weight: 500;
+    color: var(--text-color);
+    flex: 1;
+}
+
+.vs {
+    font-size: 1rem;
+    color: var(--primary-color);
+    font-weight: 700;
+    margin: 0 0.5rem;
+}
+
+.match-item.played .match-item-teams.score {
+    margin-bottom: 1rem;
+}
+
+.match-score {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--secondary-color);
+    margin: 0 1rem;
+    padding: 0.25rem 0.75rem;
+    background-color: #eaf6ec;
+    border-radius: 4px;
+}
+
+.prediction-details {
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid #eee;
+    font-size: 0.9rem;
+}
+
+.prediction-details p {
+    margin: 0.4rem 0;
+    color: #454545;
+}
+.prediction-details strong {
+    color: var(--text-color);
+}
+
+.points-awarded {
+    font-weight: bold;
+}
+.match-item.played .points-awarded {
+    font-size: 1rem;
+}
+.status-resultado-exacto ~ .points-awarded,
+.status-ganador-correcto ~ .points-awarded,
+.status-empate-correcto ~ .points-awarded {
+    color: var(--success-color);
+}
+.status-fallado ~ .points-awarded {
+    color: var(--danger-color);
+}
+
+
+/* Ranking Screen Styles */
+.ranking-table-section {
+    background-color: var(--card-background);
+    padding: 1.5rem;
+    border-radius: 8px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.07);
+}
+
+.table-responsive {
+    width: 100%;
+    overflow-x: auto; 
+}
+
+.ranking-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 1rem;
+}
+
+.ranking-table th, .ranking-table td {
+    padding: 0.75rem 1rem;
+    text-align: left;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.ranking-table th {
+    background-color: #f8f9fa;
+    color: var(--text-color);
+    font-weight: 500;
+    font-size: 0.95rem;
+}
+
+.ranking-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.ranking-table tbody tr:hover {
+    background-color: #f1f3f5;
+}
+
+.ranking-table .current-user-row {
+    background-color: var(--current-user-row-bg);
+    font-weight: bold;
+}
+.ranking-table .current-user-row td {
+    color: var(--primary-color);
+}
+
+/* Profile Screen Styles */
+.profile-header { /* Uses common header styles */ }
+
+.profile-details-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.5rem;
+    padding: 2rem; 
+}
+
+.profile-avatar-container {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    overflow: hidden;
+    border: 3px solid var(--primary-color);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.profile-avatar {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.profile-info {
+    width: 100%;
+    max-width: 500px; 
+}
+
+.profile-info .form-group {
+    margin-bottom: 1.25rem;
+}
+
+.edit-profile-button {
+    width: 100%;
+    background-color: var(--primary-color);
+}
+.edit-profile-button:hover {
+    background-color: #0056b3; 
+}
+
+.profile-stats-section, .profile-actions-section {
+    padding: 1.5rem;
+}
+
+.profile-stats-section h2, .profile-actions-section h2 {
+    color: var(--accent-color);
+    margin-top: 0;
+    margin-bottom: 1rem;
+    font-size: 1.3rem;
+    border-bottom: 1px solid var(--accent-color);
+    padding-bottom: 0.5rem;
+}
+
+.profile-stats-section ul {
+    list-style: none;
+    padding: 0;
+    margin-bottom: 1rem;
+}
+
+.profile-stats-section ul li {
+    margin-bottom: 0.5rem;
+    font-size: 1rem;
+}
+.profile-stats-section ul li strong {
+    color: var(--secondary-color);
+}
+
+.profile-actions-section .action-button {
+    display: block;
+    width: 100%;
+    margin-bottom: 0.75rem;
+    background-color: var(--accent-color);
+}
+.profile-actions-section .action-button:hover {
+    background-color: #138496;
+}
+
+
+/* Prediction Screen Styles */
+.prediction-header { /* Uses common header styles */ }
+
+.prediction-form-card {
+    padding: 1.5rem;
+}
+
+.match-details-preview {
+    text-align: center;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px dashed var(--input-border-color);
+}
+
+.match-details-preview h2 {
+    color: var(--primary-color);
+    font-size: 1.6rem;
+    margin-bottom: 0.5rem;
+}
+.vs-small {
+    font-size: 1.1rem;
+    color: var(--text-color);
+    margin: 0 0.25rem;
+}
+
+.match-info-text {
+    font-size: 0.9rem;
+    color: #6c757d;
+    margin-top: 0.25rem;
+}
+.match-tournament-tag {
+    display: inline-block;
+    background-color: #eef9fb;
+    color: var(--accent-color);
+    padding: 0.2rem 0.5rem;
+    border-radius: 3px;
+    font-size: 0.8rem;
+    margin-right: 0.5rem;
+}
+
+.prediction-form-content {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.score-inputs {
+    display: flex;
+    gap: 1rem;
+    justify-content: space-around;
+}
+
+.score-input-group {
+    flex: 1;
+    min-width: 100px; 
+}
+
+.score-input-group label {
+    font-size: 0.95rem;
+    color: var(--text-color);
+}
+
+.score-input-group input[type="number"] {
+    text-align: center;
+    font-size: 1.5rem;
+    padding: 0.5rem;
+}
+
+.prediction-actions {
+    display: flex;
+    gap: 1rem;
+    margin-top: 1rem;
+    justify-content: center;
+}
+.prediction-actions .action-button {
+    flex-grow: 1;
+    max-width: 200px;
+}
+
+
+/* Points Detail Screen Styles */
+.points-detail-header { /* Uses common header styles */ }
+
+.points-breakdown-section {
+    padding: 1.5rem;
+}
+
+.points-breakdown-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.point-entry-card {
+    background-color: #fff;
+    border: 1px solid #e9ecef;
+    border-radius: 6px;
+    padding: 1rem;
+    margin-bottom: 1rem;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.03);
+}
+
+.point-entry-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.5rem;
+}
+
+.point-source {
+    font-weight: 500;
+    color: var(--primary-color);
+    font-size: 1.05rem;
+}
+
+.point-value {
+    font-weight: bold;
+    font-size: 1rem;
+}
+.point-value.positive { color: var(--success-color); }
+.point-value.negative { color: var(--danger-color); }
+.point-value.neutral { color: var(--text-color); }
+
+.point-detail-text {
+    font-size: 0.9rem;
+    color: #555;
+    margin: 0.25rem 0;
+}
+.point-date-text {
+    font-size: 0.8rem;
+    color: #777;
+    margin-top: 0.5rem;
+    text-align: right;
+}
+
+.points-total-summary {
+    margin-top: 1.5rem;
+    padding-top: 1rem;
+    border-top: 2px solid var(--primary-color);
+    text-align: right;
+}
+.points-total-summary h3 {
+    font-size: 1.25rem;
+    color: var(--text-color);
+}
+.total-points-value {
+    color: var(--primary-color);
+    font-weight: 700;
+}
+
+/* Create League Screen & Join League Screen Styles */
+.create-league-header, .join-league-header { /* Uses common header styles */ }
+
+.create-league-form, .join-league-form {
+    padding: 1.5rem; 
+}
+
+.create-league-form h2, .join-league-form h2 { /* These h2 were not present, but good for future */
+    color: var(--primary-color);
+    margin-top: 0;
+    margin-bottom: 1.5rem;
+    font-size: 1.4rem;
+}
+.join-league-form p { 
+    margin-bottom: 1rem;
+    font-size: 0.95rem;
+    color: #555;
+}
+
+.create-league-actions, .join-league-actions {
+    display: flex;
+    gap: 1rem;
+    margin-top: 1.5rem;
+    justify-content: flex-end; 
+}
+.create-league-actions .action-button, .join-league-actions .action-button {
+    min-width: 120px; 
+}
+
+/* Notification Styles */
+.notification-container {
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 1000;
+    width: auto;
+    max-width: 90%;
+    pointer-events: none; /* Container should not intercept clicks */
+}
+
+.notification {
+    padding: 1rem 1.5rem;
+    margin-bottom: 1rem;
+    border: 1px solid transparent;
+    border-radius: .375rem; /* Slightly more rounded */
+    box-shadow: 0 0.5rem 1rem rgba(0,0,0,0.15);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    min-width: 320px; /* Minimum width */
+    max-width: 500px; /* Max width */
+    pointer-events: all; /* Notification itself should be clickable */
+}
+
+.notification.success {
+    color: var(--notification-success-text);
+    background-color: var(--notification-success-bg);
+    border-color: var(--notification-success-border);
+}
+
+.notification.error {
+    color: var(--notification-error-text);
+    background-color: var(--notification-error-bg);
+    border-color: var(--notification-error-border);
+}
+
+.notification.info {
+    color: var(--notification-info-text);
+    background-color: var(--notification-info-bg);
+    border-color: var(--notification-info-border);
+}
+
+.notification-message {
+    margin: 0;
+    margin-right: 1rem; 
+    font-size: 0.95rem;
+}
+
+.notification-close-button {
+    background: none;
+    border: none;
+    color: inherit; /* Inherits color from parent (.success, .error, .info) */
+    font-size: 1.2rem; /* For react-icons size */
+    font-weight: bold;
+    line-height: 1;
+    opacity: 0.7;
+    cursor: pointer;
+    padding: 0.25rem; /* Easier to click */
+    display: flex; /* Align icon properly */
+    align-items: center;
+    justify-content: center;
+}
+.notification-close-button:hover {
+    opacity: 1;
+}
+
+@keyframes fadeInOutKeyframes { /* Renamed to avoid conflict if a global one exists */
+    0% { opacity: 0; transform: translateY(-20px); }
+    10% { opacity: 1; transform: translateY(0); }
+    90% { opacity: 1; transform: translateY(0); }
+    100% { opacity: 0; transform: translateY(-20px); }
+}
+
+.fade-in-out { /* Apply this to the .notification div */
+    animation: fadeInOutKeyframes 3s forwards;
+}
+
+
+/* Admin Panel Styles */
+.admin-panel-container { /* Uses common container styles */ }
+.admin-header { /* Uses common header styles */ }
+
+.admin-nav {
+    display: flex;
+    gap: 0.5rem; /* Matches dashboard-nav */
+    padding: 0.5rem;
+    background-color: var(--card-background);
+    border-radius: 6px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    margin-bottom: 1.5rem; /* Space below admin nav */
+}
+/* .admin-nav .nav-button uses common .nav-button styles */
+
+.admin-section {
+    background-color: var(--card-background);
+    padding: 1.5rem;
+    border-radius: 8px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.07);
+    margin-bottom: 1.5rem;
+}
+
+.admin-section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--input-border-color);
+}
+
+.admin-section-header h2 {
+    color: var(--accent-color);
+    margin: 0;
+    font-size: 1.5rem;
+}
+
+.admin-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 1rem;
+}
+.admin-table th, .admin-table td {
+    padding: 0.75rem 1rem;
+    text-align: left;
+    border-bottom: 1px solid #e0e0e0;
+    vertical-align: middle;
+}
+.admin-table th {
+    background-color: #f8f9fa;
+    font-weight: 500;
+}
+.admin-table tbody tr:hover {
+    background-color: #f1f3f5;
+}
+
+.admin-table td.actions-cell {
+    text-align: right;
+    white-space: nowrap; /* Prevent buttons from wrapping too soon */
+}
+.admin-table td.actions-cell .button-with-icon {
+    margin-left: 0.5rem;
+}
+
+
+.admin-table.matches-admin-table th:nth-child(3), /* Date column */
+.admin-table.matches-admin-table td:nth-child(3) {
+    min-width: 180px; /* Ensure date doesn't wrap too aggressively */
+}
+.admin-table.matches-admin-table th:nth-child(4), /* Result column */
+.admin-table.matches-admin-table td:nth-child(4) {
+    text-align: center;
+}
+.admin-table.matches-admin-table th:nth-child(5), /* Actions column */
+.admin-table.matches-admin-table td:nth-child(5) {
+    text-align: right;
+    min-width: 150px;
+}
+
+.action-button-icon {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0.3rem;
+    margin: 0 0.2rem;
+    color: var(--text-color); /* Default color, override below */
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 4px;
+    transition: background-color 0.2s ease, color 0.2s ease;
+}
+.action-button-icon:hover {
+    opacity: 0.8;
+}
+.action-button-icon svg {
+    font-size: 1.2rem; /* Adjust icon size */
+}
+
+.edit-icon-button {
+    color: var(--edit-action-color);
+}
+.edit-icon-button:hover {
+    background-color: #fff3cd; /* Light yellow hover */
+}
+
+.delete-icon-button {
+    color: var(--delete-action-color);
+}
+.delete-icon-button:hover {
+    background-color: #f8d7da; /* Light red hover */
+}
+
+
+.admin-form-card {
+    /* Can use .card style or define new ones if needed */
+    /* For now, we are putting form groups directly in .admin-section.card */
+}
+.admin-form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
+    margin-top: 1.5rem;
+}
+
+/* Footer common styles */
+.dashboard-footer, .leagues-footer, .matches-footer, .ranking-footer, .profile-footer,
+.prediction-footer, .points-detail-footer, .create-league-footer, .join-league-footer, .admin-footer {
+    text-align: center;
+    padding: 1.5rem;
+    margin-top: 1rem;
+    background-color: var(--footer-background);
+    color: #6c757d;
+    font-size: 0.875rem;
+    border-top: 1px solid #dee2e6;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.sr-only { 
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .dashboard-header, .leagues-header, .matches-header, .ranking-header, .profile-header,
+    .prediction-header, .points-detail-header, .create-league-header, .join-league-header, .admin-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+    }
+    .dashboard-header h1, .leagues-header h1, .matches-header h1, .ranking-header h1, .profile-header h1,
+    .prediction-header h1, .points-detail-header h1, .create-league-header h1, .join-league-header h1, .admin-header h1 {
+        font-size: 1.6rem;
+    }
+    .user-info {
+        width: 100%;
+        justify-content: space-between;
+    }
+    .dashboard-nav, .admin-nav {
+        justify-content: flex-start;
+        flex-wrap: wrap; /* Allow nav buttons to wrap */
+    }
+    .nav-button {
+        padding: 0.5rem 0.8rem;
+        font-size: 0.85rem;
+    }
+    .leagues-actions {
+        flex-direction: column;
+    }
+    .action-button {
+        width: 100%;
+        margin-top: 0.25rem;
+    }
+    .matches-tabs {
+        flex-direction: column; 
+    }
+    .tab-button {
+        font-size: 0.9rem;
+    }
+    .match-item-teams {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+    .vs { margin: 0.25rem 0; }
+    .match-score { font-size: 1.3rem; }
+
+    .ranking-table th, .ranking-table td,
+    .admin-table th, .admin-table td {
+        padding: 0.6rem 0.75rem;
+        font-size: 0.9rem;
+    }
+    .profile-details-section {
+        flex-direction: column;
+        padding: 1.5rem;
+    }
+    .score-inputs {
+        flex-direction: column;
+    }
+    .prediction-actions, .create-league-actions, .join-league-actions, .admin-form-actions {
+        flex-direction: column;
+    }
+    .prediction-actions .action-button, 
+    .create-league-actions .action-button,
+    .join-league-actions .action-button,
+    .admin-form-actions .action-button {
+        max-width: 100%;
+        width: 100%;
+    }
+    .prediction-card-header {
+        flex-direction: column;
+        gap: 0.25rem;
+    }
+    .team-name-display {
+        text-align: center !important; 
+    }
+     .predicted-score-display {
+        font-size: 1.5rem;
+    }
+    .notification {
+        min-width: 80%;
+        padding: 0.75rem 1rem;
+    }
+    .admin-section-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+    }
+    .admin-section-header .action-button {
+        width: auto; /* Don't make add new button full width on mobile */
+    }
+     .admin-section-header div { /* Container for multiple buttons in admin header */
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+    }
+
+
+}
+
+@media (max-width: 480px) {
+    .auth-container {
+        padding: 1.5rem;
+        margin-top: 1rem;
+    }
+    .auth-container header h1 { font-size: 1.8rem; }
+
+    .dashboard-container, .leagues-container, .matches-container, .ranking-container, .profile-container,
+    .prediction-container, .points-detail-container, .create-league-container, .join-league-container, .admin-panel-container { 
+        padding: 0.5rem; 
+    }
+    .dashboard-header, .leagues-header, .matches-header, .ranking-header, .profile-header,
+    .prediction-header, .points-detail-header, .create-league-header, .join-league-header, .admin-header { 
+        padding: 0.75rem 1rem; 
+    }
+    .dashboard-section, .leagues-list-section, .match-list-section, .ranking-table-section, 
+    .profile-details-section, .profile-stats-section, .profile-actions-section,
+    .prediction-form-card, .points-breakdown-section, .create-league-form, .join-league-form, .admin-section { 
+        padding: 1rem; 
+    }
+
+    .dashboard-section h2, .leagues-list-section h2, .profile-stats-section h2, .profile-actions-section h2, .admin-section-header h2 { 
+        font-size: 1.3rem; 
+    }
+    
+    .card-list, .leagues-list, .match-list {
+        grid-template-columns: 1fr; 
+    }
+    .predict-button.main-action {
+        font-size: 0.95rem;
+    }
+    .team-name { font-size: 1rem; } /* For match items, not prediction card */
+
+
+     .ranking-table th, .ranking-table td,
+     .admin-table th, .admin-table td {
+        font-size: 0.85rem; 
+        padding: 0.5rem;
+    }
+    .ranking-table th:nth-child(1), .ranking-table td:nth-child(1),
+    .admin-table th:nth-child(1), .admin-table td:nth-child(1) { 
+        min-width: 20px; 
+        text-align: center;
+    }
+     .ranking-table th:nth-child(3), .ranking-table td:nth-child(3),
+     .admin-table.matches-admin-table th:nth-child(4), /* Result */
+     .admin-table.matches-admin-table td:nth-child(4) { 
+        text-align: center;
+    }
+     .admin-table.matches-admin-table th:nth-child(5), /* Actions */
+     .admin-table.matches-admin-table td:nth-child(5) {
+        text-align: center;
+    }
+    .admin-table td.actions-cell .button-with-icon,
+    .admin-table td.actions-cell .action-button-icon {
+        margin-left: 0.2rem; /* Reduce margin on small screens */
+        margin-right: 0.2rem;
+    }
+    .admin-table td.actions-cell .action-button-small { /* text button */
+        padding: 0.3rem 0.4rem;
+        font-size: 0.75rem;
+    }
+
+
+    .profile-avatar-container {
+        width: 100px;
+        height: 100px;
+    }
+     .predicted-score-display {
+        font-size: 1.4rem;
+    }
+    .notification {
+        font-size: 0.9rem;
+    }
+    .notification-close-button {
+        font-size: 1.2rem;
+    }
+}

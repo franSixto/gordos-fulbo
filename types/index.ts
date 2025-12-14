@@ -16,6 +16,8 @@ export type Match = {
     date: string;
     tournamentId?: string;
     tournamentName?: string;
+    stage?: string | null;
+    group?: string | null;
     actualScoreA?: number;
     actualScoreB?: number;
     isPlayed?: boolean;
@@ -44,6 +46,8 @@ export type Tournament = {
     id: string;
     name: string;
     year: number;
+    teamType?: string | null;
+    config?: string | null; // JSON string
 };
 
 export type Team = {

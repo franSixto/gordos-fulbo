@@ -15,16 +15,35 @@ async function checkAdmin() {
     return user?.isAdmin ?? false;
 }
 
-export async function createTournament(name: string, year: number) {
+export async function createTournament(name: string, year: number, teamType?: string) {
     if (!await checkAdmin()) throw new Error("Unauthorized");
 
     await db.tournament.create({
-        data: { name, year }
+        data: { name, year, teamType }
     });
     revalidatePath('/admin');
 }
 
-export async function createMatch(tournamentId: string, teamA: string, teamB: string, date: Date) {
+export async function deleteTournament(tournamentId: string) {
+    if (!await checkAdmin()) throw new Error("Unauthorized");
+
+    await db.tournament.delete({
+        where: { id: tournamentId }
+    });
+    revalidatePath('/admin');
+}
+
+export async function deleteMatch(matchId: string) {
+    if (!await checkAdmin()) throw new Error("Unauthorized");
+
+    await db.match.delete({
+        where: { id: matchId }
+    });
+    revalidatePath('/admin');
+    revalidatePath('/matches');
+}
+
+export async function createMatch(tournamentId: string, teamA: string, teamB: string, date: Date, stage?: string, group?: string) {
     if (!await checkAdmin()) throw new Error("Unauthorized");
 
     await db.match.create({
@@ -32,7 +51,26 @@ export async function createMatch(tournamentId: string, teamA: string, teamB: st
             tournamentId,
             teamA,
             teamB,
-            date
+            date,
+            stage,
+            group
+        }
+    });
+    revalidatePath('/admin');
+    revalidatePath('/matches');
+}
+
+export async function updateMatch(matchId: string, data: { teamA?: string, teamB?: string, date?: Date, stage?: string, group?: string }) {
+    if (!await checkAdmin()) throw new Error("Unauthorized");
+
+    await db.match.update({
+        where: { id: matchId },
+        data: {
+            teamA: data.teamA,
+            teamB: data.teamB,
+            date: data.date,
+            stage: data.stage,
+            group: data.group
         }
     });
     revalidatePath('/admin');
@@ -77,7 +115,7 @@ export async function setMatchResult(matchId: string, scoreA: number, scoreB: nu
             data: { points }
         });
     }
-    
+
     // Recalculate total points for all affected users
     const userIds = Array.from(new Set(predictions.map((p: { userId: string }) => p.userId)));
     for (const userId of userIds) {
@@ -104,7 +142,7 @@ export async function getUsers() {
 
 export async function toggleAdmin(userId: string) {
     if (!await checkAdmin()) throw new Error("Unauthorized");
-    
+
     const user = await db.user.findUnique({ where: { id: userId } });
     if (!user) return;
 

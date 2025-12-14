@@ -30,6 +30,8 @@ model Tournament {
   id        String   @id @default(uuid())
   name      String
   year      Int
+  teamType  String?
+  config    String?  // JSON string for tournament structure (stages, groups, etc.)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   matches   Match[]
@@ -52,6 +54,8 @@ model Match {
   date          DateTime
   tournamentId  String
   tournament    Tournament @relation(fields: [tournamentId], references: [id], onDelete: Cascade)
+  stage         String?    // Ej: "Fase de Grupos", "Octavos", "Fecha 1"
+  group         String?    // Ej: "Grupo A", "Zona 1"
   actualScoreA  Int?
   actualScoreB  Int?
   isPlayed      Boolean    @default(false)

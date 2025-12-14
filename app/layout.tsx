@@ -4,6 +4,7 @@ import "./globals.css";
 import { ClerkProvider } from "@clerk/nextjs";
 import { AppProvider } from "@/context/AppContext";
 import { NotificationWrapper } from "@/components/ui/NotificationWrapper";
+import { WelcomeConfetti } from "@/components/ui/WelcomeConfetti";
 // import Script from "next/script";
 
 const playfair = Playfair_Display({ subsets: ["latin"], variable: '--font-playfair' });
@@ -26,6 +27,7 @@ export default function RootLayout({
         <ClerkProvider>
             <html lang="es" className="scroll-smooth">
                 <head>
+                    <link rel="preload" href="/ehh.mp3" as="audio" />
                     {/* Google AdSense Script - Reemplaza ca-pub-XXXXXXXXXXXXXXXX con tu ID real */}
                     {/* <Script
                         async
@@ -36,6 +38,7 @@ export default function RootLayout({
                 </head>
                 <body className={`${playfair.variable} ${lato.variable} bg-gloria-bg text-gloria-text`}>
                     <AppProvider>
+                        <WelcomeConfetti />
                         <NotificationWrapper />
                         {children}
                     </AppProvider>

@@ -6,10 +6,18 @@ import { useApp } from '@/context/AppContext';
 import { useRouter } from 'next/navigation';
 import { PredictionResult } from '@/types';
 import { AdBanner } from '@/components/ui/AdBanner';
+import Image from 'next/image';
+import { getTeamFlagUrl } from '@/lib/utils';
+import { TeamLogo } from '@/components/ui/TeamLogo';
 
 export const DashboardScreen: React.FC = () => {
-    const { user, logout, userPredictions, allMatches, calculatePointsAndStatus } = useApp();
+    const { user, logout, userPredictions, allMatches, calculatePointsAndStatus, teams } = useApp();
     const router = useRouter();
+
+    const getTeamFlag = (teamName: string) => {
+        const team = teams.find(t => t.name === teamName);
+        return getTeamFlagUrl(teamName, team?.logoUrl);
+    };
 
     const upcomingMatchesForDashboard = allMatches
         .filter(match => !match.isPlayed)
@@ -110,9 +118,27 @@ export const DashboardScreen: React.FC = () => {
                             return (
                                 <div key={`${pred.matchId}-${pred.userId}`} className="bg-white rounded-xl shadow-soft p-6 border border-gray-100 hover:shadow-gold transition-shadow duration-300">
                                     <div className="flex justify-between items-center mb-6">
-                                        <span className="font-serif font-bold text-lg text-gloria-accent">{pred.teamA}</span>
-                                        <span className="text-xs text-gloria-primary font-serif italic mx-2">vs</span>
-                                        <span className="font-serif font-bold text-lg text-gloria-accent">{pred.teamB}</span>
+                                        <div className="flex items-center gap-2 min-w-0 flex-1 justify-end">
+                                            <span className="font-serif font-bold text-sm text-gloria-accent truncate">{pred.teamA}</span>
+                                            <TeamLogo 
+                                                teamName={pred.teamA} 
+                                                flagUrl={getTeamFlag(pred.teamA)} 
+                                                width={35} 
+                                                height={35} 
+                                                className="flex-shrink-0"
+                                            />
+                                        </div>
+                                        <span className="text-xs text-gloria-primary font-serif italic mx-2 flex-shrink-0">vs</span>
+                                        <div className="flex items-center gap-2 min-w-0 flex-1 justify-start">
+                                            <TeamLogo 
+                                                teamName={pred.teamB} 
+                                                flagUrl={getTeamFlag(pred.teamB)} 
+                                                width={35} 
+                                                height={35} 
+                                                className="flex-shrink-0"
+                                            />
+                                            <span className="font-serif font-bold text-sm text-gloria-accent truncate">{pred.teamB}</span>
+                                        </div>
                                     </div>
 
                                     <div className="bg-gloria-bg rounded-lg p-4 text-center mb-4 border border-gray-100">
@@ -158,7 +184,29 @@ export const DashboardScreen: React.FC = () => {
                         {upcomingMatchesForDashboard.length > 0 ? upcomingMatchesForDashboard.map(match => (
                             <div key={match.id} className="bg-white rounded-xl shadow-soft p-6 flex justify-between items-center border-l-4 border-gloria-secondary hover:shadow-md transition-shadow">
                                 <div>
-                                    <p className="font-display font-bold text-xl text-gloria-accent mb-1">{match.teamA} <span className="text-gloria-primary text-sm font-serif font-normal mx-1">vs</span> {match.teamB}</p>
+                                    <div className="flex items-center justify-center gap-4 mb-3 w-full">
+                                        <div className="flex items-center gap-2 flex-1 justify-end min-w-0">
+                                            <span className="font-display font-bold text-lg text-gloria-accent truncate text-right">{match.teamA}</span>
+                                            <TeamLogo 
+                                                teamName={match.teamA} 
+                                                flagUrl={getTeamFlag(match.teamA)}
+                                                width={35}
+                                                height={35}
+                                                className="flex-shrink-0" 
+                                            />
+                                        </div>
+                                        <span className="text-gloria-primary text-sm font-serif font-normal flex-shrink-0">vs</span>
+                                        <div className="flex items-center gap-2 flex-1 justify-start min-w-0">
+                                            <TeamLogo 
+                                                teamName={match.teamB} 
+                                                flagUrl={getTeamFlag(match.teamB)}
+                                                width={35}
+                                                height={35}
+                                                className="flex-shrink-0" 
+                                            />
+                                            <span className="font-display font-bold text-lg text-gloria-accent truncate text-left">{match.teamB}</span>
+                                        </div>
+                                    </div>
                                     <p className="text-xs text-gloria-secondary font-bold uppercase tracking-wider mb-1">{match.tournamentName || 'Amistoso Internacional'}</p>
                                     <p className="text-sm text-gray-500 font-serif italic">{new Date(match.date).toLocaleString('es-ES', { dateStyle: 'long', timeStyle: 'short' })}</p>
                                 </div>

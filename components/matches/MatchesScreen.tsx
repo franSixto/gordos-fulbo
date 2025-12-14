@@ -4,16 +4,50 @@ import React, { useState } from 'react';
 import { FiArrowLeft, FiEdit3 } from 'react-icons/fi';
 import { useApp } from '@/context/AppContext';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
+import { getTeamFlagUrl } from '@/lib/utils';
+import { TeamLogo } from '@/components/ui/TeamLogo';
+import { Match } from '@/types';
 
 type MatchTab = 'upcoming' | 'played';
 
 export const MatchesScreen: React.FC = () => {
-    const { user, userPredictions, allMatches, calculatePointsAndStatus } = useApp();
+    const { user, userPredictions, allMatches, calculatePointsAndStatus, teams } = useApp();
     const router = useRouter();
     const [activeTab, setActiveTab] = useState<MatchTab>('upcoming');
 
-    const upcomingMatchesData = allMatches.filter(match => !match.isPlayed);
-    const playedMatchesData = allMatches.filter(match => match.isPlayed && typeof match.actualScoreA === 'number' && typeof match.actualScoreB === 'number');
+    const getTeamFlag = (teamName: string) => {
+        const team = teams.find(t => t.name === teamName);
+        return getTeamFlagUrl(teamName, team?.logoUrl);
+    };
+
+    const getStageRank = (stage?: string | null) => {
+        if (!stage) return 0;
+        if (stage.includes('Grupos')) return 1;
+        if (stage.includes('32')) return 2;
+        if (stage.includes('16') || stage.includes('Octavos')) return 3;
+        if (stage.includes('Cuartos')) return 4;
+        if (stage.includes('Semi')) return 5;
+        if (stage.includes('Final') || stage.includes('Tercer')) return 6;
+        return 99;
+    };
+
+    const sortMatches = (matches: Match[]) => {
+        return [...matches].sort((a, b) => {
+            const rankA = getStageRank(a.stage);
+            const rankB = getStageRank(b.stage);
+            if (rankA !== rankB) return rankA - rankB;
+            
+            if (a.group && b.group && a.group !== b.group) {
+                return a.group.localeCompare(b.group);
+            }
+            
+            return new Date(a.date).getTime() - new Date(b.date).getTime();
+        });
+    };
+
+    const upcomingMatchesData = sortMatches(allMatches.filter(match => !match.isPlayed));
+    const playedMatchesData = sortMatches(allMatches.filter(match => match.isPlayed && typeof match.actualScoreA === 'number' && typeof match.actualScoreB === 'number'));
 
     return (
         <div className="min-h-screen bg-gloria-bg pb-12 text-gloria-text font-sans" role="main" aria-labelledby="matches-title">
@@ -64,12 +98,32 @@ export const MatchesScreen: React.FC = () => {
                                         <div className="mb-8 text-center">
                                             <div className="mb-4">
                                                 <span className="inline-block px-3 py-1 text-xs font-bold uppercase tracking-widest text-gloria-primary bg-gloria-primary/10 rounded-full mb-2">{match.tournamentName || 'Torneo Oficial'}</span>
+                                                {match.stage && <span className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">{match.stage}</span>}
+                                                {match.group && <span className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">Grupo {match.group}</span>}
                                                 <p className="text-sm text-gray-500 font-serif italic">{new Date(match.date).toLocaleString('es-ES', { dateStyle: 'long', timeStyle: 'short' })}</p>
                                             </div>
-                                            <div className="flex items-center justify-center gap-4 font-display text-2xl text-gloria-accent font-bold">
-                                                <span className="flex-1 text-right">{match.teamA}</span>
-                                                <span className="text-gloria-primary text-lg font-serif font-normal italic">vs</span>
-                                                <span className="flex-1 text-left">{match.teamB}</span>
+                                            <div className="flex items-center justify-center gap-4 font-display text-gloria-accent font-bold">
+                                                <div className="flex-1 flex items-center justify-end gap-3 min-w-0">
+                                                    <span className="text-sm text-right truncate">{match.teamA}</span>
+                                                    <TeamLogo 
+                                                        teamName={match.teamA} 
+                                                        flagUrl={getTeamFlag(match.teamA)} 
+                                                        width={35} 
+                                                        height={35} 
+                                                        className="flex-shrink-0"
+                                                    />
+                                                </div>
+                                                <span className="text-gloria-primary text-lg font-serif font-normal italic flex-shrink-0">vs</span>
+                                                <div className="flex-1 flex items-center justify-start gap-3 min-w-0">
+                                                    <TeamLogo 
+                                                        teamName={match.teamB} 
+                                                        flagUrl={getTeamFlag(match.teamB)} 
+                                                        width={35} 
+                                                        height={35} 
+                                                        className="flex-shrink-0"
+                                                    />
+                                                    <span className="text-sm text-left truncate">{match.teamB}</span>
+                                                </div>
                                             </div>
                                         </div>
                                         <button
@@ -102,14 +156,36 @@ export const MatchesScreen: React.FC = () => {
                                     return (
                                         <li key={match.id} className="bg-white rounded-xl shadow-soft p-6 border-l-4 border-gloria-secondary">
                                             <div className="flex justify-between items-center mb-6">
-                                                <span className="text-xs font-bold uppercase tracking-wider text-gloria-secondary">{match.tournamentName || 'Torneo Oficial'}</span>
+                                                <div className="flex flex-col">
+                                                    <span className="text-xs font-bold uppercase tracking-wider text-gloria-secondary">{match.tournamentName || 'Torneo Oficial'}</span>
+                                                    {match.stage && <span className="text-xs text-gray-400 font-bold uppercase tracking-wider mt-1">{match.stage}</span>}
+                                                    {match.group && <span className="text-xs text-gray-400 font-bold uppercase tracking-wider">Grupo {match.group}</span>}
+                                                </div>
                                                 <span className="text-sm text-gray-400 font-serif italic">{new Date(match.date).toLocaleDateString('es-ES', { dateStyle: 'long' })}</span>
                                             </div>
 
                                             <div className="flex items-center justify-between font-display text-xl text-gloria-accent font-bold mb-6 bg-gray-50 p-4 rounded-lg border border-gray-100">
-                                                <span className="flex-1 text-right">{match.teamA}</span>
-                                                <span className="mx-4 text-2xl text-gloria-secondary">{match.actualScoreA} - {match.actualScoreB}</span>
-                                                <span className="flex-1 text-left">{match.teamB}</span>
+                                                <div className="flex-1 flex items-center justify-end gap-2 min-w-0">
+                                                    <span className="text-sm text-right truncate">{match.teamA}</span>
+                                                    <TeamLogo 
+                                                        teamName={match.teamA} 
+                                                        flagUrl={getTeamFlag(match.teamA)} 
+                                                        width={35} 
+                                                        height={35} 
+                                                        className="flex-shrink-0"
+                                                    />
+                                                </div>
+                                                <span className="mx-2 text-2xl text-gloria-secondary whitespace-nowrap flex-shrink-0">{match.actualScoreA} - {match.actualScoreB}</span>
+                                                <div className="flex-1 flex items-center justify-start gap-2 min-w-0">
+                                                    <TeamLogo 
+                                                        teamName={match.teamB} 
+                                                        flagUrl={getTeamFlag(match.teamB)} 
+                                                        width={35} 
+                                                        height={35} 
+                                                        className="flex-shrink-0"
+                                                    />
+                                                    <span className="text-sm text-left truncate">{match.teamB}</span>
+                                                </div>
                                             </div>
 
                                             <div className="text-sm border-t border-gray-100 pt-4 space-y-3">

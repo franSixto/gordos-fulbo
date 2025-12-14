@@ -1,9 +1,12 @@
 'use client';
 
 import React, { useState } from 'react';
-import { FiPlus, FiTrash2, FiEdit2, FiSave, FiX } from 'react-icons/fi';
+import { FiPlus, FiTrash2, FiEdit2, FiSave, FiX, FiSearch } from 'react-icons/fi';
 import { useApp } from '@/context/AppContext';
 import { Team } from '@/types';
+import { ConfirmationModal } from '@/components/ui/ConfirmationModal';
+import Image from 'next/image';
+import { getTeamFlagUrl } from '@/lib/utils';
 
 export const TeamsManager: React.FC = () => {
     const { teams, addTeam, editTeam, removeTeam, showNotification } = useApp();
@@ -13,11 +16,29 @@ export const TeamsManager: React.FC = () => {
     const [newTeamCountry, setNewTeamCountry] = useState('');
     const [newTeamLogoUrl, setNewTeamLogoUrl] = useState('');
 
+    const [isCreateTeamModalOpen, setIsCreateTeamModalOpen] = useState(false);
+    const [teamSearchQuery, setTeamSearchQuery] = useState('');
+
     const [editingTeamId, setEditingTeamId] = useState<string | null>(null);
     const [editName, setEditName] = useState('');
     const [editType, setEditType] = useState<'Club' | 'Selección'>('Club');
     const [editCountry, setEditCountry] = useState('');
     const [editLogoUrl, setEditLogoUrl] = useState('');
+
+    const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+    const [teamToDelete, setTeamToDelete] = useState<{ id: string, name: string } | null>(null);
+
+    const confirmDelete = () => {
+        if (!teamToDelete) return;
+        removeTeam(teamToDelete.id);
+        setIsDeleteModalOpen(false);
+        setTeamToDelete(null);
+    };
+
+    const handleDeleteClick = (id: string, name: string) => {
+        setTeamToDelete({ id, name });
+        setIsDeleteModalOpen(true);
+    };
 
     const handleAddTeam = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -35,6 +56,7 @@ export const TeamsManager: React.FC = () => {
         setNewTeamType('Club');
         setNewTeamCountry('');
         setNewTeamLogoUrl('');
+        setIsCreateTeamModalOpen(false);
     };
 
     const startEditing = (team: Team) => {
@@ -66,50 +88,105 @@ export const TeamsManager: React.FC = () => {
 
     return (
         <div className="space-y-8">
-            <section className="bg-white rounded-xl shadow-soft p-8 border border-gray-100">
-                <h2 className="text-xl font-display font-bold text-gloria-accent mb-6">Agregar Nuevo Equipo</h2>
-                <form onSubmit={handleAddTeam} className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <input
-                        type="text"
-                        placeholder="Nombre del Equipo"
-                        value={newTeamName}
-                        onChange={(e) => setNewTeamName(e.target.value)}
-                        className="px-4 py-3 border border-gray-200 rounded-lg bg-gray-50 text-gloria-accent focus:outline-none focus:ring-2 focus:ring-gloria-primary/20 focus:border-gloria-primary transition-all"
+            <ConfirmationModal
+                isOpen={isDeleteModalOpen}
+                title="Eliminar Equipo"
+                message={`¿Estás seguro que deseas eliminar el equipo "${teamToDelete?.name}"? Esta acción no se puede deshacer.`}
+                onConfirm={confirmDelete}
+                onCancel={() => setIsDeleteModalOpen(false)}
+                confirmButtonText="Eliminar"
+                confirmButtonVariant="danger"
+            />
+
+            {/* Create Team Modal */}
+            {isCreateTeamModalOpen && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+                    <div className="bg-white rounded-xl shadow-2xl w-full max-w-lg">
+                        <div className="p-6 border-b border-gray-100 flex justify-between items-center">
+                            <h2 className="text-xl font-display font-bold text-gloria-accent">Agregar Nuevo Equipo</h2>
+                            <button onClick={() => setIsCreateTeamModalOpen(false)} className="text-gray-400 hover:text-gray-600">
+                                <FiX size={24} />
+                            </button>
+                        </div>
+                        <div className="p-6">
+                            <form onSubmit={handleAddTeam} className="grid grid-cols-1 gap-4">
+                                <input
+                                    type="text"
+                                    placeholder="Nombre del Equipo"
+                                    value={newTeamName}
+                                    onChange={(e) => setNewTeamName(e.target.value)}
+                                    className="px-4 py-3 border border-gray-200 rounded-lg bg-gray-50 text-gloria-accent focus:outline-none focus:ring-2 focus:ring-gloria-primary/20 focus:border-gloria-primary transition-all"
+                                />
+                                <select
+                                    value={newTeamType}
+                                    onChange={(e) => setNewTeamType(e.target.value as 'Club' | 'Selección')}
+                                    className="px-4 py-3 border border-gray-200 rounded-lg bg-gray-50 text-gloria-accent focus:outline-none focus:ring-2 focus:ring-gloria-primary/20 focus:border-gloria-primary transition-all"
+                                >
+                                    <option value="Club">Club</option>
+                                    <option value="Selección">Selección</option>
+                                </select>
+                                <input
+                                    type="text"
+                                    placeholder="País (Opcional)"
+                                    value={newTeamCountry}
+                                    onChange={(e) => setNewTeamCountry(e.target.value)}
+                                    className="px-4 py-3 border border-gray-200 rounded-lg bg-gray-50 text-gloria-accent focus:outline-none focus:ring-2 focus:ring-gloria-primary/20 focus:border-gloria-primary transition-all"
+                                />
+                                <input
+                                    type="text"
+                                    placeholder="URL del Logo (Opcional)"
+                                    value={newTeamLogoUrl}
+                                    onChange={(e) => setNewTeamLogoUrl(e.target.value)}
+                                    className="px-4 py-3 border border-gray-200 rounded-lg bg-gray-50 text-gloria-accent focus:outline-none focus:ring-2 focus:ring-gloria-primary/20 focus:border-gloria-primary transition-all"
+                                />
+                                <div className="flex justify-end gap-4 mt-4">
+                                    <button
+                                        type="button"
+                                        onClick={() => setIsCreateTeamModalOpen(false)}
+                                        className="px-6 py-3 text-gray-500 font-bold hover:bg-gray-100 rounded-lg transition-colors"
+                                    >
+                                        Cancelar
+                                    </button>
+                                    <button type="submit" className="flex justify-center items-center gap-2 px-6 py-3 bg-gloria-primary text-white font-serif font-bold rounded shadow-md hover:bg-gloria-gold-600 transition-all">
+                                        <FiPlus /> Agregar Equipo
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            <div className="flex flex-col md:flex-row justify-between items-center gap-4">
+                <div className="relative w-full md:w-96">
+                    <FiSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                    <input 
+                        type="text" 
+                        placeholder="Buscar equipo..." 
+                        value={teamSearchQuery}
+                        onChange={(e) => setTeamSearchQuery(e.target.value)}
+                        className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-gloria-primary/20 focus:border-gloria-primary transition-all"
                     />
-                    <select
-                        value={newTeamType}
-                        onChange={(e) => setNewTeamType(e.target.value as 'Club' | 'Selección')}
-                        className="px-4 py-3 border border-gray-200 rounded-lg bg-gray-50 text-gloria-accent focus:outline-none focus:ring-2 focus:ring-gloria-primary/20 focus:border-gloria-primary transition-all"
-                    >
-                        <option value="Club">Club</option>
-                        <option value="Selección">Selección</option>
-                    </select>
-                    <input
-                        type="text"
-                        placeholder="País (Opcional)"
-                        value={newTeamCountry}
-                        onChange={(e) => setNewTeamCountry(e.target.value)}
-                        className="px-4 py-3 border border-gray-200 rounded-lg bg-gray-50 text-gloria-accent focus:outline-none focus:ring-2 focus:ring-gloria-primary/20 focus:border-gloria-primary transition-all"
-                    />
-                    <input
-                        type="text"
-                        placeholder="URL del Logo (Opcional)"
-                        value={newTeamLogoUrl}
-                        onChange={(e) => setNewTeamLogoUrl(e.target.value)}
-                        className="px-4 py-3 border border-gray-200 rounded-lg bg-gray-50 text-gloria-accent focus:outline-none focus:ring-2 focus:ring-gloria-primary/20 focus:border-gloria-primary transition-all"
-                    />
-                    <button type="submit" className="md:col-span-2 flex justify-center items-center gap-2 px-6 py-3 bg-gloria-primary text-white font-serif font-bold rounded shadow-md hover:bg-gloria-gold-600 transition-all">
-                        <FiPlus /> Agregar Equipo
-                    </button>
-                </form>
-            </section>
+                </div>
+                <button 
+                    onClick={() => setIsCreateTeamModalOpen(true)}
+                    className="flex items-center gap-2 px-6 py-3 bg-gloria-primary text-white font-serif font-bold rounded shadow-md hover:bg-gloria-gold-600 transition-all w-full md:w-auto justify-center"
+                >
+                    <FiPlus /> Nuevo Equipo
+                </button>
+            </div>
 
             <section className="bg-white rounded-xl shadow-soft overflow-hidden border border-gray-100">
                 <div className="px-8 py-6 border-b border-gray-100 bg-gray-50/50">
                     <h2 className="text-xl font-display font-bold text-gloria-accent">Equipos Existentes</h2>
                 </div>
                 <ul className="divide-y divide-gray-100">
-                    {teams.map(team => (
+                    {teams
+                        .filter(team => 
+                            team.name.toLowerCase().includes(teamSearchQuery.toLowerCase()) ||
+                            (team.country && team.country.toLowerCase().includes(teamSearchQuery.toLowerCase()))
+                        )
+                        .map(team => (
                         <li key={team.id} className="p-6 flex flex-col sm:flex-row justify-between items-center gap-4 hover:bg-gray-50 transition-colors">
                             {editingTeamId === team.id ? (
                                 <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 gap-4 w-full">
@@ -154,13 +231,15 @@ export const TeamsManager: React.FC = () => {
                             ) : (
                                 <>
                                     <div className="flex items-center gap-4 flex-1">
-                                        {team.logoUrl ? (
-                                            <img src={team.logoUrl} alt={team.name} className="w-10 h-10 object-contain" />
-                                        ) : (
-                                            <div className="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center text-gray-500 font-bold text-xs">
-                                                {team.name.substring(0, 2).toUpperCase()}
-                                            </div>
-                                        )}
+                                        <div className="relative w-10 h-10">
+                                            <Image 
+                                                src={getTeamFlagUrl(team.name, team.logoUrl)} 
+                                                alt={team.name} 
+                                                fill
+                                                className="object-contain"
+                                                sizes="40px"
+                                            />
+                                        </div>
                                         <div>
                                             <p className="font-display font-bold text-gloria-accent text-lg">{team.name}</p>
                                             <p className="text-sm text-gray-500 font-serif italic">
@@ -172,7 +251,7 @@ export const TeamsManager: React.FC = () => {
                                         <button onClick={() => startEditing(team)} className="p-2 text-gloria-secondary hover:bg-gloria-secondary/10 rounded transition-colors" title="Editar">
                                             <FiEdit2 />
                                         </button>
-                                        <button onClick={() => removeTeam(team.id)} className="p-2 text-red-500 hover:bg-red-50 rounded transition-colors" title="Eliminar">
+                                        <button onClick={() => handleDeleteClick(team.id, team.name)} className="p-2 text-red-500 hover:bg-red-50 rounded transition-colors" title="Eliminar">
                                             <FiTrash2 />
                                         </button>
                                     </div>

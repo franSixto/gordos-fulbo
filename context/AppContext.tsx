@@ -6,6 +6,7 @@ import { useUser, useClerk } from '@clerk/nextjs';
 import { syncUser } from '@/app/actions/user';
 import { getMatches, getUserPredictions, getLeagues, getTournaments, savePrediction } from '@/app/actions/data';
 import { getTeams, createTeam, updateTeam, deleteTeam } from '@/app/actions/teams';
+import { deleteMatch as deleteMatchAction, deleteTournament as deleteTournamentAction, updateMatch as updateMatchAction } from '@/app/actions/admin';
 
 type AppContextType = {
     user: User | null;
@@ -102,6 +103,8 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
                             date: m.date.toISOString(),
                             tournamentId: m.tournamentId,
                             tournamentName: m.tournament?.name,
+                            stage: m.stage,
+                            group: m.group,
                             actualScoreA: m.actualScoreA ?? undefined,
                             actualScoreB: m.actualScoreB ?? undefined,
                             isPlayed: m.isPlayed
@@ -313,13 +316,19 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         showNotification(`Torneo "${updatedTournamentData.name}" actualizado con éxito.`, 'success');
     };
 
-    const deleteTournament = (tournamentId: string) => {
+    const deleteTournament = async (tournamentId: string) => {
         const tournamentToDelete = tournaments.find(t => t.id === tournamentId);
         if (!tournamentToDelete) return;
 
-        setTournaments(prev => prev.filter(t => t.id !== tournamentId));
-        setAllMatches(prevMatches => prevMatches.filter(m => m.tournamentId !== tournamentId));
-        showNotification(`Torneo "${tournamentToDelete.name}" y sus partidos asociados han sido eliminados.`, 'success');
+        try {
+            await deleteTournamentAction(tournamentId);
+            setTournaments(prev => prev.filter(t => t.id !== tournamentId));
+            setAllMatches(prevMatches => prevMatches.filter(m => m.tournamentId !== tournamentId));
+            showNotification(`Torneo "${tournamentToDelete.name}" y sus partidos asociados han sido eliminados.`, 'success');
+        } catch (error) {
+            console.error("Failed to delete tournament", error);
+            showNotification('Error al eliminar torneo', 'error');
+        }
     };
 
     const addTeam = async (teamData: { name: string; type: 'Club' | 'Selección'; logoUrl?: string; country?: string }) => {
@@ -383,25 +392,45 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
             date: matchData.date,
             tournamentId: matchData.tournamentId,
             tournamentName: matchData.tournamentName,
+            stage: matchData.stage,
+            group: matchData.group,
             leagueIds: matchData.leagueIds || [],
             isPlayed: false,
         };
         setAllMatches(prevMatches => [...prevMatches, newMatch]);
     };
 
-    const updateMatch = (updatedMatchData: Match) => {
-        setAllMatches(prev => prev.map(m => m.id === updatedMatchData.id ? updatedMatchData : m));
-        showNotification(`Partido "${updatedMatchData.teamA} vs ${updatedMatchData.teamB}" actualizado con éxito.`, 'success');
+    const updateMatch = async (updatedMatchData: Match) => {
+        try {
+            await updateMatchAction(updatedMatchData.id, {
+                teamA: updatedMatchData.teamA,
+                teamB: updatedMatchData.teamB,
+                date: new Date(updatedMatchData.date),
+                stage: updatedMatchData.stage || undefined,
+                group: updatedMatchData.group || undefined
+            });
+            setAllMatches(prev => prev.map(m => m.id === updatedMatchData.id ? updatedMatchData : m));
+            showNotification(`Partido actualizado con éxito.`, 'success');
+        } catch (error) {
+            console.error("Failed to update match", error);
+            showNotification('Error al actualizar partido', 'error');
+        }
     };
 
-    const deleteMatch = (matchId: string) => {
+    const deleteMatch = async (matchId: string) => {
         const matchToDelete = allMatches.find(m => m.id === matchId);
         if (!matchToDelete) return;
 
-        setAllMatches(prev => prev.filter(m => m.id !== matchId));
-        // Also remove predictions associated with this match
-        setUserPredictions(prevPreds => prevPreds.filter(p => p.matchId !== matchId));
-        showNotification(`Partido "${matchToDelete.teamA} vs ${matchToDelete.teamB}" eliminado.`, 'success');
+        try {
+            await deleteMatchAction(matchId);
+            setAllMatches(prev => prev.filter(m => m.id !== matchId));
+            // Also remove predictions associated with this match
+            setUserPredictions(prevPreds => prevPreds.filter(p => p.matchId !== matchId));
+            showNotification(`Partido "${matchToDelete.teamA} vs ${matchToDelete.teamB}" eliminado.`, 'success');
+        } catch (error) {
+            console.error("Failed to delete match", error);
+            showNotification('Error al eliminar partido', 'error');
+        }
     };
 
     const setMatchResult = (matchId: string, actualScoreA: number, actualScoreB: number) => {

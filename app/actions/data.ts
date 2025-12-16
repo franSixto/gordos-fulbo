@@ -56,6 +56,12 @@ export async function savePrediction(matchId: string, scoreA: number, scoreB: nu
     // Check if match is already played or started
     const match = await db.match.findUnique({ where: { id: matchId } });
     if (!match) throw new Error("Match not found");
+    
+    // Prevent modification if match has started
+    if (new Date() >= new Date(match.date)) {
+        throw new Error("El partido ya ha comenzado, no se pueden modificar las predicciones.");
+    }
+
     if (match.isPlayed) throw new Error("Match already played"); // Or check date
 
     // Upsert prediction

@@ -9,6 +9,7 @@ import { AdBanner } from '@/components/ui/AdBanner';
 import Image from 'next/image';
 import { getTeamFlagUrl } from '@/lib/utils';
 import { TeamLogo } from '@/components/ui/TeamLogo';
+import { MatchCard } from '@/components/matches/MatchCard';
 
 export const DashboardScreen: React.FC = () => {
     const { user, logout, userPredictions, allMatches, calculatePointsAndStatus, teams } = useApp();
@@ -36,10 +37,10 @@ export const DashboardScreen: React.FC = () => {
         <div className="min-h-screen bg-gloria-bg pb-12 text-gloria-text font-sans" role="main" aria-labelledby="dashboard-title">
             <header className="bg-white border-b border-gray-200 shadow-sm sticky top-0 z-50">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
-                    <h1 id="dashboard-title" className="text-2xl font-display font-bold text-gloria-accent tracking-tight">
-                        Gordos Fulbo XXL Turbo Ultra V12 <span className="text-gloria-primary font-normal italic">| Gloria Eterna</span>
+                    <h1 id="dashboard-title" className="text-xl sm:text-2xl font-display font-bold text-gloria-accent tracking-tight truncate max-w-[70%] sm:max-w-none">
+                        Gordos Fulbo <span className="hidden sm:inline">XXL Turbo Ultra V12</span> <span className="text-gloria-primary font-normal italic hidden md:inline">| Gloria Eterna</span>
                     </h1>
-                    <div className="flex items-center gap-6">
+                    <div className="flex items-center gap-4 sm:gap-6">
                         <div className="hidden sm:flex flex-col items-end">
                             <span className="text-gloria-accent font-bold text-sm">
                                 {user?.username || user?.email}
@@ -98,6 +99,21 @@ export const DashboardScreen: React.FC = () => {
             </nav>
 
             <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
+                <section aria-labelledby="current-points-title">
+                    <div className="bg-gradient-to-r from-gloria-accent to-gray-900 rounded-xl shadow-xl p-6 sm:p-8 flex flex-col sm:flex-row items-center justify-between relative overflow-hidden text-white gap-6 sm:gap-0">
+                        <div className="absolute top-0 right-0 w-64 h-64 bg-gloria-primary/10 rounded-full blur-3xl -mr-16 -mt-16"></div>
+
+                        <div className="relative z-10 text-center sm:text-left">
+                            <h2 id="current-points-title" className="text-sm text-gloria-primary uppercase tracking-widest mb-2 font-bold">Tu Legado</h2>
+                            <p className="text-5xl sm:text-6xl font-display font-bold text-white drop-shadow-md">{user?.totalPoints ?? 0}</p>
+                            <p className="text-sm text-gray-400 mt-2 font-serif italic">Puntos acumulados en la historia</p>
+                        </div>
+                        <button onClick={() => router.push('/points')} className="relative z-10 flex items-center gap-2 px-6 py-3 border border-gloria-primary/50 text-gloria-primary rounded hover:bg-gloria-primary hover:text-white font-serif font-bold transition-all w-full sm:w-auto justify-center">
+                            <FiInfo /> Ver Detalle
+                        </button>
+                    </div>
+                </section>
+
                 <section aria-labelledby="predictions-summary-title">
                     <div className="flex items-center gap-4 mb-6">
                         <div className="h-px bg-gray-200 flex-1"></div>
@@ -182,61 +198,12 @@ export const DashboardScreen: React.FC = () => {
 
                     <div className="grid gap-6 sm:grid-cols-2">
                         {upcomingMatchesForDashboard.length > 0 ? upcomingMatchesForDashboard.map(match => (
-                            <div key={match.id} className="bg-white rounded-xl shadow-soft p-6 flex justify-between items-center border-l-4 border-gloria-secondary hover:shadow-md transition-shadow">
-                                <div>
-                                    <div className="flex items-center justify-center gap-4 mb-3 w-full">
-                                        <div className="flex items-center gap-2 flex-1 justify-end min-w-0">
-                                            <span className="font-display font-bold text-lg text-gloria-accent truncate text-right">{match.teamA}</span>
-                                            <TeamLogo 
-                                                teamName={match.teamA} 
-                                                flagUrl={getTeamFlag(match.teamA)}
-                                                width={35}
-                                                height={35}
-                                                className="flex-shrink-0" 
-                                            />
-                                        </div>
-                                        <span className="text-gloria-primary text-sm font-serif font-normal flex-shrink-0">vs</span>
-                                        <div className="flex items-center gap-2 flex-1 justify-start min-w-0">
-                                            <TeamLogo 
-                                                teamName={match.teamB} 
-                                                flagUrl={getTeamFlag(match.teamB)}
-                                                width={35}
-                                                height={35}
-                                                className="flex-shrink-0" 
-                                            />
-                                            <span className="font-display font-bold text-lg text-gloria-accent truncate text-left">{match.teamB}</span>
-                                        </div>
-                                    </div>
-                                    <p className="text-xs text-gloria-secondary font-bold uppercase tracking-wider mb-1">{match.tournamentName || 'Amistoso Internacional'}</p>
-                                    <p className="text-sm text-gray-500 font-serif italic">{new Date(match.date).toLocaleString('es-ES', { dateStyle: 'long', timeStyle: 'short' })}</p>
-                                </div>
-                                <button
-                                    className="flex items-center gap-2 px-6 py-2 bg-white border border-gloria-secondary text-gloria-secondary font-bold font-serif rounded hover:bg-gloria-secondary hover:text-white transition-all shadow-sm"
-                                    onClick={() => router.push(`/prediction/${match.id}`)}
-                                >
-                                    <FiEdit3 /> <span>Jugar</span>
-                                </button>
-                            </div>
+                            <MatchCard key={match.id} match={match} />
                         )) : <p className="text-gray-500 col-span-full text-center font-serif italic">El estadio está en silencio. No hay partidos próximos.</p>}
                     </div>
                 </section>
 
                 <AdBanner dataAdSlot="0987654321" />
-
-                <section aria-labelledby="current-points-title">
-                    <div className="bg-gradient-to-r from-gloria-accent to-gray-900 rounded-xl shadow-xl p-8 flex items-center justify-between relative overflow-hidden text-white">
-                        <div className="absolute top-0 right-0 w-64 h-64 bg-gloria-primary/10 rounded-full blur-3xl -mr-16 -mt-16"></div>
-
-                        <div className="relative z-10">
-                            <h2 id="current-points-title" className="text-sm text-gloria-primary uppercase tracking-widest mb-2 font-bold">Tu Legado</h2>
-                            <p className="text-6xl font-display font-bold text-white drop-shadow-md">{user?.totalPoints ?? 0}</p>
-                            <p className="text-sm text-gray-400 mt-2 font-serif italic">Puntos acumulados en la historia</p>
-                        </div>
-                        <button onClick={() => router.push('/points')} className="relative z-10 flex items-center gap-2 px-6 py-3 border border-gloria-primary/50 text-gloria-primary rounded hover:bg-gloria-primary hover:text-white font-serif font-bold transition-all">
-                            <FiInfo /> Ver Detalle
-                        </button>
-                    </div>
-                </section>
             </main>
 
             <footer className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-16 pt-8 border-t border-gray-200 text-center text-gray-400 text-sm font-serif italic">

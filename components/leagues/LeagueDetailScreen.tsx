@@ -102,27 +102,27 @@ export const LeagueDetailScreen: React.FC<LeagueDetailScreenProps> = ({ leagueId
                 </section>
 
                 <section className="bg-white rounded-xl shadow-soft overflow-hidden border border-gray-100" aria-labelledby="league-participants-heading">
-                    <div className="px-8 py-6 border-b border-gray-100 bg-gray-50/50">
-                        <h2 id="league-participants-heading" className="text-xl font-display font-bold text-gloria-accent">Ranking de Participantes en Liga</h2>
+                    <div className="px-4 sm:px-8 py-4 sm:py-6 border-b border-gray-100 bg-gray-50/50">
+                        <h2 id="league-participants-heading" className="text-lg sm:text-xl font-display font-bold text-gloria-accent">Ranking de Participantes en Liga</h2>
                     </div>
                     {rankedLeagueParticipants.length > 0 ? (
                         <div className="overflow-x-auto">
                             <table className="min-w-full divide-y divide-gray-100">
                                 <thead className="bg-gray-50">
                                     <tr>
-                                        <th scope="col" className="px-8 py-4 text-left text-xs font-bold text-gloria-primary uppercase tracking-widest">#</th>
-                                        <th scope="col" className="px-8 py-4 text-left text-xs font-bold text-gloria-primary uppercase tracking-widest">Usuario (ID)</th>
-                                        <th scope="col" className="px-8 py-4 text-left text-xs font-bold text-gloria-primary uppercase tracking-widest">Puntos en Liga</th>
+                                        <th scope="col" className="px-4 sm:px-8 py-3 sm:py-4 text-left text-xs font-bold text-gloria-primary uppercase tracking-widest">#</th>
+                                        <th scope="col" className="px-4 sm:px-8 py-3 sm:py-4 text-left text-xs font-bold text-gloria-primary uppercase tracking-widest">Usuario (ID)</th>
+                                        <th scope="col" className="px-4 sm:px-8 py-3 sm:py-4 text-left text-xs font-bold text-gloria-primary uppercase tracking-widest">Puntos en Liga</th>
                                     </tr>
                                 </thead>
                                 <tbody className="bg-white divide-y divide-gray-100">
                                     {rankedLeagueParticipants.map(p => (
                                         <tr key={p.participantId} className={`hover:bg-gray-50 transition-colors ${p.participantId === currentUserAppIdentifier ? 'bg-gloria-primary/5' : ''}`}>
-                                            <td className="px-8 py-4 whitespace-nowrap text-sm font-display font-bold text-gloria-secondary">{p.rank}</td>
-                                            <td className="px-8 py-4 whitespace-nowrap text-sm text-gray-600 font-serif">
+                                            <td className="px-4 sm:px-8 py-3 sm:py-4 whitespace-nowrap text-sm font-display font-bold text-gloria-secondary">{p.rank}</td>
+                                            <td className="px-4 sm:px-8 py-3 sm:py-4 whitespace-nowrap text-sm text-gray-600 font-serif">
                                                 {p.displayName} {p.participantId === currentUserAppIdentifier ? <span className="text-gloria-primary font-bold italic">(Tú)</span> : ''}
                                             </td>
-                                            <td className="px-8 py-4 whitespace-nowrap text-sm font-display font-bold text-gloria-accent">{p.leaguePoints}</td>
+                                            <td className="px-4 sm:px-8 py-3 sm:py-4 whitespace-nowrap text-sm font-display font-bold text-gloria-accent">{p.leaguePoints}</td>
                                         </tr>
                                     ))}
                                 </tbody>

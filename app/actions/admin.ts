@@ -36,11 +36,32 @@ export async function deleteTournament(tournamentId: string) {
 export async function deleteMatch(matchId: string) {
     if (!await checkAdmin()) throw new Error("Unauthorized");
 
+    // Get users who predicted on this match to recalculate their points later
+    const predictions = await db.prediction.findMany({
+        where: { matchId },
+        select: { userId: true }
+    });
+    const userIds = Array.from(new Set(predictions.map(p => p.userId)));
+
     await db.match.delete({
         where: { id: matchId }
     });
+
+    // Recalculate total points for all affected users
+    for (const userId of userIds) {
+        const total = await db.prediction.aggregate({
+            where: { userId },
+            _sum: { points: true }
+        });
+        await db.user.update({
+            where: { id: userId },
+            data: { totalPoints: total._sum.points || 0 }
+        });
+    }
+
     revalidatePath('/admin');
     revalidatePath('/matches');
+    revalidatePath('/ranking');
 }
 
 export async function createMatch(tournamentId: string, teamA: string, teamB: string, date: Date, stage?: string, group?: string) {

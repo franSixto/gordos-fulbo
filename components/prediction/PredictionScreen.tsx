@@ -5,13 +5,15 @@ import { FiArrowLeft, FiSave, FiXCircle } from 'react-icons/fi';
 import { useApp } from '@/context/AppContext';
 import { useRouter } from 'next/navigation';
 import { Match } from '@/types';
+import { TeamLogo } from '@/components/ui/TeamLogo';
+import { getTeamFlagUrl } from '@/lib/utils';
 
 interface PredictionScreenProps {
     matchId: string;
 }
 
 export const PredictionScreen: React.FC<PredictionScreenProps> = ({ matchId }) => {
-    const { user, allMatches, addOrUpdatePrediction, showNotification } = useApp();
+    const { user, allMatches, addOrUpdatePrediction, showNotification, teams } = useApp();
     const router = useRouter();
     const [scoreA, setScoreA] = useState<string>('');
     const [scoreB, setScoreB] = useState<string>('');
@@ -28,6 +30,11 @@ export const PredictionScreen: React.FC<PredictionScreenProps> = ({ matchId }) =
         setScoreB('');
         setError('');
     }, [matchToPredict]);
+
+    const getTeamFlag = (teamName: string) => {
+        const team = teams.find(t => t.name === teamName);
+        return getTeamFlagUrl(teamName, team?.logoUrl);
+    };
 
     if (!matchToPredict) {
         return (
@@ -81,17 +88,43 @@ export const PredictionScreen: React.FC<PredictionScreenProps> = ({ matchId }) =
                 <div className="bg-white rounded-xl shadow-soft overflow-hidden border border-gray-100">
                     <div className="bg-gloria-primary p-8 text-center text-white relative overflow-hidden">
                         <div className="absolute inset-0 bg-[url('/pattern.png')] opacity-10"></div>
-                        <h2 className="text-3xl font-display font-bold mb-2 relative z-10">{matchToPredict.teamA} <span className="text-gloria-gold-300 text-xl font-serif italic mx-2">vs</span> {matchToPredict.teamB}</h2>
-                        <div className="flex justify-center items-center gap-3 text-gloria-gold-100 text-sm font-serif relative z-10">
-                            {matchToPredict.tournamentName && <span className="px-3 py-1 bg-white/10 rounded-full backdrop-blur-sm border border-white/20">{matchToPredict.tournamentName}</span>}
-                            <span>{new Date(matchToPredict.date).toLocaleString('es-ES', { dateStyle: 'long', timeStyle: 'short' })} hs</span>
+                        <div className="relative z-10 flex flex-col items-center gap-4">
+                            <div className="flex items-center justify-center gap-8 w-full">
+                                <div className="flex flex-col items-center gap-2 flex-1">
+                                    <TeamLogo 
+                                        teamName={matchToPredict.teamA} 
+                                        flagUrl={getTeamFlag(matchToPredict.teamA)} 
+                                        width={60} 
+                                        height={60} 
+                                    />
+                                    <span className="text-lg font-bold leading-tight">{matchToPredict.teamA}</span>
+                                </div>
+                                <span className="text-gloria-gold-300 text-2xl font-serif italic">vs</span>
+                                <div className="flex flex-col items-center gap-2 flex-1">
+                                    <TeamLogo 
+                                        teamName={matchToPredict.teamB} 
+                                        flagUrl={getTeamFlag(matchToPredict.teamB)} 
+                                        width={60} 
+                                        height={60} 
+                                    />
+                                    <span className="text-lg font-bold leading-tight">{matchToPredict.teamB}</span>
+                                </div>
+                            </div>
+                            <div className="flex flex-col items-center gap-1 mt-2">
+                                {matchToPredict.tournamentName && <span className="px-3 py-1 bg-white/10 rounded-full backdrop-blur-sm border border-white/20 text-xs font-bold uppercase tracking-wider text-gloria-gold-100">{matchToPredict.tournamentName}</span>}
+                                <div className="flex items-center gap-2 text-gloria-gold-100 text-sm font-serif">
+                                    <span>{new Date(matchToPredict.date).toLocaleString('es-ES', { dateStyle: 'long', timeStyle: 'short' })} hs</span>
+                                </div>
+                                {matchToPredict.stage && <span className="text-xs text-white/80 font-bold uppercase tracking-wider">{matchToPredict.stage}</span>}
+                                {matchToPredict.group && <span className="text-xs text-white/80 font-bold uppercase tracking-wider">Grupo {matchToPredict.group}</span>}
+                            </div>
                         </div>
                     </div>
 
                     <div className="p-8">
                         <div className="flex justify-center items-center gap-8 mb-8">
-                            <div className="flex flex-col items-center">
-                                <label htmlFor="scoreA" className="block text-xs font-bold text-gloria-primary uppercase tracking-widest mb-3">{matchToPredict.teamA}</label>
+                            <div className="flex flex-col items-center w-24">
+                                <label htmlFor="scoreA" className="block text-xs font-bold text-gloria-primary uppercase tracking-widest mb-3 truncate w-full text-center">{matchToPredict.teamA}</label>
                                 <input
                                     type="number"
                                     id="scoreA"
@@ -104,8 +137,8 @@ export const PredictionScreen: React.FC<PredictionScreenProps> = ({ matchId }) =
                                 />
                             </div>
                             <span className="text-3xl font-display font-bold text-gray-300 mt-6">-</span>
-                            <div className="flex flex-col items-center">
-                                <label htmlFor="scoreB" className="block text-xs font-bold text-gloria-primary uppercase tracking-widest mb-3">{matchToPredict.teamB}</label>
+                            <div className="flex flex-col items-center w-24">
+                                <label htmlFor="scoreB" className="block text-xs font-bold text-gloria-primary uppercase tracking-widest mb-3 truncate w-full text-center">{matchToPredict.teamB}</label>
                                 <input
                                     type="number"
                                     id="scoreB"
@@ -118,9 +151,19 @@ export const PredictionScreen: React.FC<PredictionScreenProps> = ({ matchId }) =
                                 />
                             </div>
                         </div>
-                        {error && <p className="text-red-600 text-sm text-center mb-6 font-serif italic bg-red-50 p-3 rounded-lg border border-red-100" role="alert">{error}</p>}
+
+                        {error && (
+                            <div className="mb-6 p-4 bg-red-50 border border-red-100 rounded-lg flex items-start gap-3 text-red-700">
+                                <FiXCircle className="mt-0.5 flex-shrink-0" />
+                                <p className="text-sm">{error}</p>
+                            </div>
+                        )}
+
                         <div className="flex flex-col gap-4">
-                            <button onClick={handleInternalSavePrediction} className="flex items-center justify-center gap-2 px-6 py-4 bg-gloria-primary text-white font-serif font-bold rounded-lg shadow-md hover:bg-gloria-gold-600 transition-all transform hover:-translate-y-0.5">
+                            <button
+                                onClick={handleInternalSavePrediction}
+                                className="w-full flex items-center justify-center gap-2 px-6 py-4 bg-gloria-primary text-white font-serif font-bold text-lg rounded-lg shadow-lg hover:bg-gloria-gold-600 hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300"
+                            >
                                 <FiSave /> Guardar Predicción
                             </button>
                             <button onClick={() => router.back()} className="flex items-center justify-center gap-2 px-6 py-4 bg-white text-gray-600 font-serif font-bold border border-gray-200 rounded-lg hover:bg-gray-50 transition-all">

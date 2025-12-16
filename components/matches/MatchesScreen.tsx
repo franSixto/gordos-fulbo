@@ -7,6 +7,8 @@ import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { getTeamFlagUrl } from '@/lib/utils';
 import { MatchCard } from './MatchCard';
+import { Match } from '@/types';
+import { TeamLogo } from '@/components/ui/TeamLogo';
 
 type MatchTab = 'upcoming' | 'played';
 type ViewMode = 'list' | 'grouped';

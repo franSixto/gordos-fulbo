@@ -91,7 +91,7 @@ export const AdminPanelScreen: React.FC = () => {
         // Adjust for timezone offset to show correct local time in input
         const dateString = new Date(date.getTime() - date.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
         setEditMatchDate(dateString);
-        setEditMatchTournamentId(match.tournamentId);
+        setEditMatchTournamentId(match.tournamentId || '');
         setEditMatchStage(match.stage || '');
         setEditMatchGroup(match.group || '');
         setIsEditMatchModalOpen(true);
@@ -110,7 +110,7 @@ export const AdminPanelScreen: React.FC = () => {
                 ...matchToEdit,
                 teamA: editMatchTeamA,
                 teamB: editMatchTeamB,
-                date: new Date(editMatchDate),
+                date: new Date(editMatchDate).toISOString(),
                 tournamentId: editMatchTournamentId,
                 tournamentName: selectedTournament?.name,
                 stage: editMatchStage || undefined,
